@@ -29,19 +29,21 @@ pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
         let mut block = block.borrow_mut();
         let mut jump = None;
         let mut jump_cond = None;
-        for line in block.text.lines() {
+        let mut jump_cond_line = 0;
+        for (i, line) in block.text.lines().enumerate() {
             match contains_jump(line) {
                 JumpType::None => {},
                 JumpType::Jmp(label) => {
                     if jump.is_none() {
-                        jump = Some(label)
+                        jump = Some(label);
                     }else{
                         panic!("jump already set");
                     }
                 },
                 JumpType::CondJmp(label) => {
                     if jump_cond.is_none() {
-                        jump_cond = Some(label)
+                        jump_cond = Some(label);
+                        jump_cond_line = i;
                     }else{
                         panic!("jump_cond already set");
                     }
@@ -58,6 +60,7 @@ pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
         if let Some(label) = jump_cond {
             if let Some(block_ref) = labels.iter().find(|e| e.0 == label) {
                 block.next_branch = block_ref.clone().1;
+                block.next_branch_line = jump_cond_line;
             }
         }
     }

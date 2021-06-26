@@ -6,7 +6,8 @@ mod linker;
 mod splitter;
 mod util;
 mod interceptor;
-mod codeblockholder;
+mod codeblockholder_nowidgetpod;
+mod textboxholder;
 mod codeblockwindow;
 mod clip_box;
 
@@ -42,36 +43,36 @@ fn print_code(code: &Vec<Rc<RefCell<CodeBlock>>>) {
 }
 
 fn main() {
-/*
-	let _text = "\
-	;#codeblock,0,10,\n\
+
+	let text = "\
+	;#codeblock,0,200,\n\
 	;add array elements [bytes]\n\
 	;start of array in ebx;length in ecx;sum in eax \n\
 	myfunc:\n\
 	add ecx, ebx\n\
 	xor eax, eax\n\
-	;#codeblock,8,4,\n\
+	;#codeblock,160,80,\n\
 	loop:\n\
 	cmp ebx, ecx\n\
 	je end\n\
-	;#codeblock,13,1,\n\
+	;#codeblock,260,20,\n\
 	movzx edx, byte [ebc]\n\
 	add eax, edx\n\
 	inc ebx\n\
 	jmp loop\n\
-	;#codeblock,8,15,\n\
+	;#codeblock,160,300,\n\
 	end:\n\
 	ret\
 	";
 
-	let _text2 = "\
-	;#codeblock,0,10,\n\
+	let text2 = "\
+	;#codeblock,0,100,\n\
 	;add array elements [bytes]\n\
 	;start of array in ebx;length in ecx;sum in eax \n\
 	myfunc:\n\
 	add ecx, ebx\n\
 	xor eax, eax\n\
-	;#codeblock,8,4,\n\
+	;#codeblock,80,40,\n\
 	loop:\n\
 	cmp ebx, ecx\n\
 	je end\n\
@@ -79,7 +80,7 @@ fn main() {
 	add eax, edx\n\
 	inc ebx\n\
 	jmp loop\n\
-	;#codeblock,8,15,\n\
+	;#codeblock,80,150,\n\
 	end:\n\
 	ret\
 	";
@@ -99,11 +100,11 @@ fn main() {
 	jmp loop\n\
 	end:\n\
 	ret\
-	";*/
+	";
 
-	let text3 = std::fs::read_to_string("asm.txt").unwrap();
+	//let text3 = std::fs::read_to_string("asm.txt").unwrap();
 
-	let mut data = parser::parse(&text3);
+	let mut data = parser::parse(&text);
 	splitter::split(&mut data);
 	linker::link(&data);
 
@@ -129,6 +130,10 @@ fn ui_builder() -> impl Widget<MyData> {
 	//mytext_box..fix_width(400.0).fix_height(400.0);
 
 	let codeblockwindow = CodeBlockWindow::new();
+
+	//druid::text::TextComponent
+	//druid::text::TextLayout
+	//druid::theme::UI_FONT
 
 	//SizedBox::new(druid::widget::Label::new("hello!")
 
@@ -168,8 +173,10 @@ fn ui_builder() -> impl Widget<MyData> {
 				data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
 					pos: data.mouse_pos,
 					size: Default::default(),
-					text: "".to_string(),					next: Default::default(),
-					next_branch: Default::default()
+					text: "".to_string(),
+					next: Default::default(),
+					next_branch: Default::default(),
+					next_branch_line: 0,
 				})))},
 			_ => ()
 		}

@@ -2,10 +2,11 @@ use crate::codeblock::CodeBlock;
 use crate::MyData;
 
 use std::rc::{Weak, Rc};
-use std::cell::RefCell;
+use std::cell::{RefCell, Ref, RefMut};
 use druid::{Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetPod, Color, Code};
-use druid::kurbo::{Size, Line, Point};
+use druid::kurbo::{Size, Line, Point, Affine};
 use druid::widget::prelude::RenderContext;
+use druid::Rect;
 
 //holds a Weak reference to a CodeBlock
 //has fn has_valid_reference() -> bool      returns false when Weak reference is invalid
@@ -15,19 +16,26 @@ use druid::widget::prelude::RenderContext;
 
 pub struct CodeBlockHolder {
     pub block: Weak<RefCell<CodeBlock>>,
-    pub child: WidgetPod<CodeBlock, Box<dyn Widget<CodeBlock>>>
+    pub child: Box<dyn Widget<CodeBlock>>
 }
 
 impl CodeBlockHolder {
     pub fn has_valid_reference(&self) -> bool { self.block.strong_count()>0 }
     pub fn get_pos(&self) -> Point { self.get_codeblock().borrow().pos }
+    pub fn get_size(&self) -> Size { self.get_codeblock().borrow().size }
     pub fn get_codeblock(&self) -> Rc<RefCell<CodeBlock>> { self.block.upgrade().unwrap() }
     pub fn new(block: Weak<RefCell<CodeBlock>>, child: impl Widget<CodeBlock> + 'static) -> Self {
         CodeBlockHolder{
             block,
-            child: WidgetPod::new(Box::new(child)),
+            child: Box::new(child),
         }
     }
+    /*pub fn new(block: Weak<RefCell<CodeBlock>>, child: druid::widget::TextBox<CodeBlock>) -> Self {
+        CodeBlockHolder{
+            block,
+            child: WidgetPod::new(child),
+        }
+    }*/
 }
 
 impl Widget<MyData> for CodeBlockHolder {
@@ -35,9 +43,13 @@ impl Widget<MyData> for CodeBlockHolder {
         //if !ctx.is_hot() {
         //    ctx.set_active(false);
         //}
-        dbg!(event);
+        //dbg!(event);
+        let block = self.get_codeblock();
+        let mut block = block.borrow_mut();
+        let rect = Rect::from_origin_size(block.pos, block.size);
+
         match event {
-            Event::MouseDown(e) if data.drag_mode && self.child.layout_rect().contains(e.pos) => {
+            Event::MouseDown(e) if data.drag_mode && rect.contains(e.pos) => {
                 //ctx.request_focus();
                 //ctx.set_active(true);
                 data.mouse_click_pos=Some(e.pos)
@@ -45,15 +57,15 @@ impl Widget<MyData> for CodeBlockHolder {
             Event::MouseUp(_) => {
                 data.mouse_click_pos=None
             },
-            Event::MouseMove(e) if self.child.layout_rect().contains(e.pos) => {
+            Event::MouseMove(e) if rect.contains(e.pos) => {
                 if let Some(pos)=data.mouse_click_pos {
                     //println!("holder event {} {} {}",self.block.upgrade().unwrap().borrow().pos, self.child.layout_rect(), e.pos);
-                    self.block.upgrade().unwrap().borrow_mut().pos+=e.pos-pos;
+                    block.pos+=e.pos-pos;
                     data.mouse_click_pos=Some(e.pos);
                 }
                 //ctx.request_layout();
             },
-            Event::KeyDown(k) if k.code==Code::Delete && k.mods.ctrl() && self.child.is_hot()=> {
+            Event::KeyDown(k) if k.code==Code::Delete && k.mods.ctrl() && ctx.is_hot()=> {
                 //delete itself
                 println!("deleting {:?}", self.block.as_ptr());
                 let block = self.block.upgrade().unwrap();
@@ -65,7 +77,8 @@ impl Widget<MyData> for CodeBlockHolder {
             },
             _ => ()
         }
-        self.child.event(ctx,event,&mut*self.get_codeblock().borrow_mut(),env)
+        let event = event.transform_scroll(-block.pos.to_vec2(), Rect::from_origin_size(block.pos, block.size), true).unwrap();
+        self.child.event(ctx,&event,&mut*block,env)
     }
 
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, _data: &MyData, env: &Env) {
@@ -73,7 +86,7 @@ impl Widget<MyData> for CodeBlockHolder {
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: &MyData, _data: &MyData, env: &Env) {
-        self.child.update(ctx,&*self.get_codeblock().borrow(),env);
+        self.child.update(ctx,&*self.get_codeblock().borrow(), &*self.get_codeblock().borrow(),env);
         //ctx.request_paint();
     }
 
@@ -84,29 +97,8 @@ impl Widget<MyData> for CodeBlockHolder {
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, _data: &MyData, env: &Env) {
+        let pos = self.get_pos();
+        ctx.transform(Affine::translate(pos.to_vec2()));
         self.child.paint(ctx,&*self.get_codeblock().borrow(),env);
-
-        let size = self.child.layout_rect().size();
-
-        if let Some(next) = self.get_codeblock().borrow().next.upgrade() {
-
-            let size_next = next.borrow().size;
-
-            let p0 = Point::new(size.width/2.0,size.height) + self.get_pos().to_vec2();
-            let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2();
-            let shape = Line::new(p0, p1);
-            let brush = Color::rgb8(128, 0, 0);
-            ctx.stroke(shape,&brush,5.0);   // TODO: better arrows
-        }
-        if let Some(next) = self.get_codeblock().borrow().next_branch.upgrade() {
-
-            let size_next = next.borrow().size;
-
-            let p0 = Point::new(size.width/2.0,size.height) + self.get_pos().to_vec2();
-            let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2();
-            let shape = Line::new(p0, p1);
-            let brush = Color::rgb8(128, 0, 0);
-            ctx.stroke(shape,&brush,5.0);   // TODO: better arrows, from correct line
-        }
     }
 }

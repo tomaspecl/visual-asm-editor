@@ -11,6 +11,7 @@ pub struct CodeBlock {
     pub text: String,
     pub next: Weak<RefCell<CodeBlock>>,
     pub next_branch: Weak<RefCell<CodeBlock>>,
+    pub next_branch_line: usize,
 }
 
 pub struct CodeBlocks {
@@ -96,8 +97,10 @@ mod tests {
         let c = CodeBlock{
             pos: Point::default(),
             text: str.to_string(),
+            size: Size::default(),
             next: Default::default(),
-            next_branch: Default::default()
+            next_branch: Default::default(),
+            next_branch_line: 0,
         };
 
         let mut vec = c.label();

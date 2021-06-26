@@ -26,6 +26,7 @@ fn split_labels(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
                 text: new_string,
                 next: block.next.clone(),
                 next_branch: Weak::new(),
+                next_branch_line: 0,
             }));
 
             block.next=Rc::downgrade(&new_block);
@@ -81,6 +82,7 @@ fn split_jumps(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
                 text: new_string,
                 next: block.next.clone(),
                 next_branch: Weak::new(),
+                next_branch_line: 0,
             }));
 
             block.next=Rc::downgrade(&new_block);

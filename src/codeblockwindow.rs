@@ -1,8 +1,9 @@
 use crate::MyData;
-use crate::codeblockholder::CodeBlockHolder;
+use crate::codeblockholder_nowidgetpod::CodeBlockHolder;
 use crate::codeblock::CodeBlock;
+use crate::textboxholder::TextBoxHolder;
 
-use druid::{Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetExt};
+use druid::{Rect, RenderContext, Affine, Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetExt};
 use druid::kurbo::Size;
 use std::rc::Rc;
 use druid::widget::{TextBox, SizedBox};
@@ -26,7 +27,7 @@ impl CodeBlockWindow {
 impl Widget<MyData> for CodeBlockWindow {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
         for w in &mut self.children {
-            w.event(ctx,event,data,env);
+            w.event(ctx,&event,data,env);
             if ctx.is_handled() {break;}
         }
         crate::splitter::split(&mut*data.code.borrow_mut());
@@ -50,7 +51,7 @@ impl Widget<MyData> for CodeBlockWindow {
                     }
                 }
                 if !contained {//.fix_size(200.0,200.0)
-                    children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBox::multiline()).width(200.0).padding(5.0).lens(CodeBlock::text)));
+                    children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBoxHolder{child: TextBox::multiline()}).width(200.0)/*.padding(0.0)*/));
                 }
             }
         }
@@ -75,13 +76,20 @@ impl Widget<MyData> for CodeBlockWindow {
 
         for w in &mut self.children {
             w.layout(ctx,&childbc,data,env);
-            let pos = w.get_pos();
-            w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos);
+            //let pos = w.get_pos();
+            //w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos);
         }
         bc.max()
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &MyData, env: &Env) {
+        /*for w in &mut self.children {
+            let pos = w.get_pos();
+            ctx.with_save(|ctx|{
+                ctx.transform(Affine::translate(pos.to_vec2()));
+                w.paint(ctx,data,env);
+            });
+        }*/
         for w in &mut self.children {
             w.paint(ctx,data,env);
         }

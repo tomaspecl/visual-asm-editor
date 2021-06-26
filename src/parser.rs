@@ -14,6 +14,7 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
         text: String::new(),
         next: Weak::new(),
         next_branch: Weak::new(),
+        next_branch_line: 0,
     })));
 
     for line in str.lines() {
@@ -30,6 +31,7 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
                         text: String::new(),
                         next: Weak::new(),
                         next_branch: Weak::new(),
+                        next_branch_line: 0,
                     }));
 
                     {
