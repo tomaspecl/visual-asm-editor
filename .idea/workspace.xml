@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="38333a67-8ea7-4166-98a8-652f9e3d34af" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main.rs" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="z2fsfjq7" />
+  </component>
+  <component name="ProblemsViewState">
+    <hideBySeverity>
+      <option value="15" />
+    </hideBySeverity>
+  </component>
+  <component name="ProjectId" id="1sfRcKyX08BToM3x0270F7DLjXq" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Cargo.toml" />
+    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+    <property name="project.structure.last.edited" value="Global Libraries" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
+  </component>
+  <component name="RunManager" selected="Cargo Command.Run visual_asm_editor">
+    <configuration name="Run visual_asm_editor" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="STABLE" />
+      <option name="command" value="run --package visual_asm_editor --bin visual_asm_editor" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="channel" value="STABLE" />
+      <option name="command" value="run" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="channel" value="STABLE" />
+      <option name="command" value="test" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Cargo Command.test" />
+      <item itemvalue="Cargo Command.Run visual_asm_editor" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo Command.Run visual_asm_editor" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="38333a67-8ea7-4166-98a8-652f9e3d34af" name="Default Changelist" comment="" />
+      <created>1621261736068</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1621261736068</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="466" y="182" key="#Inspections" timestamp="1621672034494">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="466" y="182" key="#Inspections/0.0.1680.1010@0.0.1680.1010" timestamp="1621672034494" />
+    <state x="294" y="159" width="1092" height="740" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1621604757929">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="294" y="159" width="1092" height="740" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1010@0.0.1680.1010" timestamp="1621604757929" />
+    <state x="645" y="220" key="#com.intellij.ide.util.MemberChooser" timestamp="1621809427888">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="645" y="220" key="#com.intellij.ide.util.MemberChooser/0.0.1680.1010@0.0.1680.1010" timestamp="1621809427888" />
+    <state x="92" y="92" width="1496" height="826" key="DiffContextDialog" timestamp="1621844201732">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="92" y="92" width="1496" height="826" key="DiffContextDialog/0.0.1680.1010@0.0.1680.1010" timestamp="1621844201732" />
+    <state x="472" y="180" width="837" height="606" key="FileChooserDialogImpl" timestamp="1621261933153">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="472" y="180" width="837" height="606" key="FileChooserDialogImpl/0.0.1680.1010@0.0.1680.1010" timestamp="1621261933153" />
+    <state width="1636" height="313" key="GridCell.Tab.0.bottom" timestamp="1622331895449">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1636" height="313" key="GridCell.Tab.0.bottom/0.0.1680.1010@0.0.1680.1010" timestamp="1622331895449" />
+    <state width="1636" height="313" key="GridCell.Tab.0.center" timestamp="1622331895448">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1636" height="313" key="GridCell.Tab.0.center/0.0.1680.1010@0.0.1680.1010" timestamp="1622331895448" />
+    <state width="1636" height="313" key="GridCell.Tab.0.left" timestamp="1622331895448">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1636" height="313" key="GridCell.Tab.0.left/0.0.1680.1010@0.0.1680.1010" timestamp="1622331895448" />
+    <state width="1636" height="313" key="GridCell.Tab.0.right" timestamp="1622331895448">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state width="1636" height="313" key="GridCell.Tab.0.right/0.0.1680.1010@0.0.1680.1010" timestamp="1622331895448" />
+    <state x="326" y="0" width="1153" height="1005" key="SettingsEditor" timestamp="1621672456017">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="326" y="0" width="1153" height="1005" key="SettingsEditor/0.0.1680.1010@0.0.1680.1010" timestamp="1621672456017" />
+    <state x="446" y="114" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1621853883068">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="446" y="114" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1680.1010@0.0.1680.1010" timestamp="1621853883068" />
+    <state x="503" y="217" width="672" height="678" key="search.everywhere.popup" timestamp="1621844990270">
+      <screen x="0" y="0" width="1680" height="1010" />
+    </state>
+    <state x="503" y="217" width="672" height="678" key="search.everywhere.popup/0.0.1680.1010@0.0.1680.1010" timestamp="1621844990270" />
+  </component>
+</project>

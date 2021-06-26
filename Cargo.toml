@@ -1,0 +1,13 @@
+[package]
+name = "visual_asm_editor"
+version = "0.2.0"
+authors = ["Tom"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+#druid = "0.7.0"
+druid = { git = "https://github.com/linebender/druid.git" }
+rand = "0.7.3"
+tracing = { version = "0.1.22" }

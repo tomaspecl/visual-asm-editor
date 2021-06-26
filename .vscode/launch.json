@@ -1,0 +1,46 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'visual_asm_editor'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--release",
+                    "--bin=visual_asm_editor",
+                    "--package=visual_asm_editor"
+                ],
+                "filter": {
+                    "name": "visual_asm_editor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'visual_asm_editor'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=visual_asm_editor",
+                    "--package=visual_asm_editor"
+                ],
+                "filter": {
+                    "name": "visual_asm_editor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

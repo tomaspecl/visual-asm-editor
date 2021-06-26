@@ -1,0 +1,38 @@
+﻿alloc:
+pushad
+mov ax, heapmap/16
+mov es, ax
+mov bx, sp
+add bx, 2+32	;bx obsahuje ukazatel na argument
+mov ax, [bx]	;ax obsahuje argument
+xor ecx,ecx	;cx obsahuje počítadlo kontrolovaného bitu
+bit1:
+mov dx, ax	;dx obsahuje počítadlo potřebných po sobě jdoucích 0-bitů
+loop1:
+bt [es:0], ecx
+inc cx
+jz heapend
+jc bit1
+dec dx
+jz nalezeno
+jmp loop1
+heapend:
+jc nenalezeno
+dec dx
+jz nalezeno
+nenalezeno:
+stc
+popad
+ret
+nalezeno:
+mov dx, ax
+sub cx, ax
+mov [bx], cx
+loop2:
+bts [es:0], ecx
+inc cx
+dec dx
+jnz loop2
+clc
+popad
+ret
