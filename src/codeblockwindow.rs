@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 use crate::MyData;
-use crate::codeblockholder_nowidgetpod::CodeBlockHolder;
+use crate::codeblockholder_withwidgetpod::CodeBlockHolder;
 use crate::codeblock::CodeBlock;
 use crate::textboxholder::TextBoxHolder;
 
@@ -92,9 +92,9 @@ impl Widget<MyData> for CodeBlockWindow {
         let childbc = BoxConstraints::new(Size::ZERO, Size::new(f64::INFINITY, f64::INFINITY));
 
         for w in &mut self.children {
-            w.layout(ctx,&childbc,data,env);
-            //let pos = w.get_pos();
-            //w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos);
+            let size = w.layout(ctx,&childbc,data,env);
+            let pos = w.get_pos();
+            w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos);
         }
         bc.max()
     }
@@ -107,6 +107,7 @@ impl Widget<MyData> for CodeBlockWindow {
                 w.paint(ctx,data,env);
             });
         }*/
+        
         for w in &mut self.children {
             w.paint(ctx,data,env);
         }
