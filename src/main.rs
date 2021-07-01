@@ -23,7 +23,7 @@ mod linker;
 mod splitter;
 mod util;
 mod interceptor;
-mod codeblockholder_withwidgetpod;
+mod codeblockholder;
 mod textboxholder;
 mod codeblockwindow;
 mod clip_box;
