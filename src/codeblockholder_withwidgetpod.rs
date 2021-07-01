@@ -107,6 +107,6 @@ impl Widget<MyData> for CodeBlockHolder {
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, _data: &MyData, env: &Env) {
-        self.child.paint(ctx,&*self.get_codeblock().borrow(),env);
+        self.child.paint_always(ctx,&*self.get_codeblock().borrow(),env);
     }
 }

@@ -104,7 +104,7 @@ impl Widget<MyData> for CodeBlockHolder {
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: &MyData, _data: &MyData, env: &Env) {
         self.child.update(ctx,&*self.get_codeblock().borrow(), &*self.get_codeblock().borrow(),env);
-        //ctx.request_paint();
+        ctx.request_paint();
     }
 
     fn layout(&mut self, ctx: &mut LayoutCtx, bc: &BoxConstraints, _data: &MyData, env: &Env) -> Size {
@@ -115,7 +115,9 @@ impl Widget<MyData> for CodeBlockHolder {
 
     fn paint(&mut self, ctx: &mut PaintCtx, _data: &MyData, env: &Env) {
         let pos = self.get_pos();
-        ctx.transform(Affine::translate(pos.to_vec2()));
-        self.child.paint(ctx,&*self.get_codeblock().borrow(),env);
+        ctx.with_save(|ctx| {
+            ctx.transform(Affine::translate(pos.to_vec2()));
+            self.child.paint(ctx,&*self.get_codeblock().borrow(),env);
+        });
     }
 }

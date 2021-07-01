@@ -11,7 +11,7 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--release",
+                    //"--release",
                     "--bin=visual_asm_editor",
                     "--package=visual_asm_editor"
                 ],

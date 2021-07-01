@@ -119,6 +119,11 @@ fn main() {
 	ret\
 	";
 
+	let text = "\
+	;#codeblock,-100,-100,\n\
+	something
+	";
+
 	//let text3 = std::fs::read_to_string("asm.txt").unwrap();
 
 	let mut data = parser::parse(&text);
@@ -159,6 +164,7 @@ fn ui_builder() -> impl Widget<MyData> {
 	let mut clip_box = clip_box::ClipBox::new(codeblockwindow);
 
 	clip_box.set_do_clamping(false);
+	clip_box.pan_to((-200.0,-200.0).into());
 
 	let interceptor = Interceptor::new(clip_box).set_event_handler(&|child,ctx,event,data: &mut MyData,env| {
 		match event {
