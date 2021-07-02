@@ -111,7 +111,7 @@ impl Widget<MyData> for CodeBlockWindow {
 			Event::KeyDown(e) if e.code==Code::Escape => data.drag_mode=false,
 			Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {
 				data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
-					pos: data.mouse_pos,
+					pos: data.mouse_pos - self.offset.to_vec2(),
 					size: Default::default(),
 					text: "".to_string(),
 					next: Default::default(),
