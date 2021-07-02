@@ -15,7 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#![allow(non_snake_case)]
 
 mod codeblock;
 mod parser;
@@ -30,8 +29,6 @@ use codeblock::*;
 
 use druid::*;
 use druid::widget::*;
-use std::rc::Rc;
-use std::cell::RefCell;
 use crate::codeblockwindow::CodeBlockWindow;
 
 #[derive(Clone, Data, Lens)]
@@ -40,14 +37,6 @@ struct MyData {
 	mouse_click_pos: Option<Point>,
 	mouse_pos: Point,
 	drag_mode: bool,
-}
-
-fn print_code(code: &Vec<Rc<RefCell<CodeBlock>>>) {
-	print!("code = [\n\n");
-	for part in code {
-		println!("Rc({:p}) {:?}\n",*part,**part);
-	}
-	println!("]");
 }
 
 fn main() {
@@ -114,24 +103,27 @@ fn main() {
 	something
 	";
 
-	//let text3 = std::fs::read_to_string("asm.txt").unwrap();
+	let _text5 = std::fs::read_to_string("asm.txt").unwrap();
 
 	let mut data = parser::parse(&_text);
 	splitter::split(&mut data);
 	linker::link(&data);
 
-	print_code(&data);
+	let code = CodeBlocks::new(data);
 
-	let data = MyData{ code: CodeBlocks::new(data), mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false};
+	dbg!(&code);
+
+	let data = MyData{ code, mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false};
     let main_window = WindowDesc::new(ui_builder());
     AppLauncher::with_window(main_window)/*.log_to_console()*/.launch(data).expect("launch failed");
 }
 
 fn ui_builder() -> impl Widget<MyData> {
-	let button = Button::new("print").on_click(|_ctx, data: &mut MyData, _env| print_code(&data.code.borrow())).padding(5.0);
+	let button = Button::new("print debug").on_click(|_ctx, data: &mut MyData, _env| {dbg!(&data.code);}).padding(5.0);
+	let button2 = Button::new("print").on_click(|_ctx, data: &mut MyData, _env| println!("{}",data.code) ).padding(5.0);
 
 	let codeblockwindow = CodeBlockWindow::new();
 
-	Flex::column().with_child(button).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout()
+	Flex::column().with_child(Flex::row().with_child(button).with_child(button2)).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout()
 
 }

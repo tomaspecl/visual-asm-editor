@@ -64,15 +64,10 @@ impl CodeBlockWindow {
         if children.len() != blocks.len() {
             //add new children
             for block in &*blocks {
-                let mut contained = false;
-                for child in &*children {
-                    if Rc::ptr_eq(block, &child.block.upgrade().unwrap()) {
-                        contained = true;
-                        break;
-                    }
-                }
+                let contained = children.iter().find(|&child| Rc::ptr_eq(block, &child.block.upgrade().unwrap())).is_some();
+    
                 if !contained {
-                    children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBoxHolder{child: TextBox::multiline()}).width(200.0)/*.padding(0.0)*/));
+                    children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBoxHolder{child: TextBox::multiline()}).width(200.0)));
                     children_changed = true;
                 }
             }

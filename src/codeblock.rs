@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use std::cell::{RefCell, Ref, RefMut, Cell};
 use std::rc::{Weak, Rc};
 use druid::kurbo::{Point, Size};
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use druid::{Data, Lens};
 
 #[derive(Clone, Data, Lens)]
@@ -71,6 +71,56 @@ impl CodeBlocks {
     pub fn borrow_mut(&self) -> RefMut<Vec<Rc<RefCell<CodeBlock>>>> { self.changed.set(self.changed.get()+1); self.vec.borrow_mut() }
 }
 
+impl Display for CodeBlocks {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let vec = self.borrow();
+
+        let mut start: Vec<_> = vec.iter().filter(|&x| vec.iter().find(|&y| {
+            y.borrow().next.upgrade().map_or(false, |z| Rc::ptr_eq(&z, x)) || 
+            y.borrow().next_branch.upgrade().map_or(false, |z| Rc::ptr_eq(&z, x))
+        }).is_none()).collect();
+
+        if start.len() == 0 {
+            // TODO: add code to handle cyclic structures - some way of specifying the starting point
+        }else if start.len() >= 1 { // NOTE: was previously coded for start.len()==1    but it should work
+            let mut to_be_written = vec.clone();
+            let mut start = start.pop().unwrap().clone();
+            loop {
+                to_be_written.retain(|x| !Rc::ptr_eq(x, &start));    //delete start
+                write!(f,"{}\n",start.borrow())?;
+    
+                let next = start.borrow().next.upgrade();
+                if let Some(next) = next {
+                    if to_be_written.iter().find(|&x| Rc::ptr_eq(x, &next)).is_some() {
+                        start = next;
+                    }else{
+                        break;
+                    }
+                }else{
+                    break;
+                }
+            }
+            if !to_be_written.is_empty() {
+                //when codeblocks remain in to_be_written then recurse
+                write!(f,"{}",CodeBlocks::new(to_be_written))?;
+            }
+        }else{
+            // TODO: add code to handle multiple start points: start.len()>1
+        }
+        Ok(())
+    }
+}
+
+impl Display for CodeBlock {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f,";#codeblock,{},{},\n{}",
+            self.pos.x as i32,
+            self.pos.y as i32,
+            self.text,
+        )
+    }
+}
+
 pub struct Label {
     pub label: String,
     pub offset: usize,
@@ -109,6 +159,17 @@ impl Debug for CodeBlock {
             self.next.as_ptr(),
             self.next_branch.as_ptr(),
         )
+    }
+}
+
+impl Debug for CodeBlocks {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let code = self.borrow();
+        write!(f,"[\n\n")?;
+	    for part in &*code {
+		    write!(f,"Rc({:p}, weak:{}) {:?}\n\n",*part,Rc::weak_count(part),**part)?;
+	    }
+	    write!(f,"]\n")
     }
 }
 
