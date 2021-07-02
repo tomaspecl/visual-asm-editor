@@ -18,20 +18,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use crate::codeblock::CodeBlock;
 
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 use druid::kurbo::Point;
 
 pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
     let mut code = Vec::new();
 
-    code.push(Rc::new(RefCell::new(CodeBlock{
-        pos: Point::new(0.0,0.0),
-        size: Default::default(),
-        text: String::new(),
-        next: Weak::new(),
-        next_branch: Weak::new(),
-        next_branch_line: 0,
-    })));
+    code.push(Rc::new(RefCell::new(CodeBlock::default())));
 
     for line in str.lines() {
         if line.starts_with(";#") {
@@ -43,11 +36,7 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
                 "codeblock" => {    //start of codeblock => push new codeblock on code vector
                     let new_codeblock = Rc::new(RefCell::new(CodeBlock {
                         pos: Point { x: parameters[1].parse::<f64>().unwrap(), y: parameters[2].parse::<f64>().unwrap() },
-                        size: Default::default(),
-                        text: String::new(),
-                        next: Weak::new(),
-                        next_branch: Weak::new(),
-                        next_branch_line: 0,
+                        ..Default::default()
                     }));
 
                     {

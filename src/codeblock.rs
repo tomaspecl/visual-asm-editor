@@ -29,6 +29,21 @@ pub struct CodeBlock {
     pub next: Weak<RefCell<CodeBlock>>,
     pub next_branch: Weak<RefCell<CodeBlock>>,
     pub next_branch_line: usize,
+    pub next_branch_line_offset: usize,
+}
+
+impl Default for CodeBlock {
+    fn default() -> Self {
+        CodeBlock {
+            pos: Point::default(),
+            size: Size::default(),
+            text: String::default(),
+            next: Weak::default(),
+            next_branch: Weak::default(),
+            next_branch_line: 0,
+            next_branch_line_offset: 0
+        }
+    }
 }
 
 pub struct CodeBlocks {
@@ -111,13 +126,9 @@ mod tests {
         ff\n\
         ";
 
-        let c = CodeBlock{
-            pos: Point::default(),
+        let c = CodeBlock {
             text: str.to_string(),
-            size: Size::default(),
-            next: Default::default(),
-            next_branch: Default::default(),
-            next_branch_line: 0,
+            ..Default::default()
         };
 
         let mut vec = c.label();

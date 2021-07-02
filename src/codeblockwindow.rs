@@ -112,11 +112,7 @@ impl Widget<MyData> for CodeBlockWindow {
 			Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {
 				data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
 					pos: data.mouse_pos - self.offset.to_vec2(),
-					size: Default::default(),
-					text: "".to_string(),
-					next: Default::default(),
-					next_branch: Default::default(),
-					next_branch_line: 0,
+					..Default::default()
 				})));
                 if self.manage_children(data) {
                     ctx.children_changed();

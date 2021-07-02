@@ -46,7 +46,9 @@ pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
         let mut jump = None;
         let mut jump_cond = None;
         let mut jump_cond_line = 0;
+        let mut jump_cond_line_offset = 0;
         for (i, line) in block.text.lines().enumerate() {
+            let line_offset = line.as_ptr() as usize - block.text.as_ptr() as usize;
             match contains_jump(line) {
                 JumpType::None => {},
                 JumpType::Jmp(label) => {
@@ -60,6 +62,7 @@ pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
                     if jump_cond.is_none() {
                         jump_cond = Some(label);
                         jump_cond_line = i;
+                        jump_cond_line_offset = line_offset;
                     }else{
                         panic!("jump_cond already set");
                     }
@@ -77,6 +80,7 @@ pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
             if let Some(block_ref) = labels.iter().find(|e| e.0 == label) {
                 block.next_branch = block_ref.clone().1;
                 block.next_branch_line = jump_cond_line;
+                block.next_branch_line_offset = jump_cond_line_offset;
             }
         }
     }

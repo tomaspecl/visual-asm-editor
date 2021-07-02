@@ -109,16 +109,14 @@ fn main() {
 	ret\
 	";
 
-	let _text = "\
+	let _text4 = "\
 	;#codeblock,100,100,\n\
 	something
 	";
 
-	let text = "";
-
 	//let text3 = std::fs::read_to_string("asm.txt").unwrap();
 
-	let mut data = parser::parse(&text);
+	let mut data = parser::parse(&_text);
 	splitter::split(&mut data);
 	linker::link(&data);
 

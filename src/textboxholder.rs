@@ -54,30 +54,27 @@ impl Widget<CodeBlock> for TextBoxHolder {
         let size = data.size;
 
         if let Some(next) = data.next.upgrade() {
-
             let size_next = next.borrow().size;
 
-            let p0 = Point::new(size.width/2.0,size.height) /*+ data.pos.to_vec2()*/;
+            let p0 = Point::new(size.width/2.0,size.height);
             let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2() - data.pos.to_vec2();
             let shape = Line::new(p0, p1);
             let brush = Color::rgb8(128, 0, 0);
             ctx.stroke(shape,&brush,5.0);   // TODO: better arrows
         }
         if let Some(next) = data.next_branch.upgrade() {
-
-            let line = data.next_branch_line;
-
             let size_next = next.borrow().size;
 
-            //self.child.layout_rect()
+            let text_layout = &self.child.text().borrow().layout;
+
+            let line_offset = text_layout.point_for_text_position(data.next_branch_line_offset).to_vec2();
+
             ctx.with_save(|ctx|{
-                //ctx.transform(Affine::translate(self.child.layout_rect().origin().to_vec2()));
-                //let p0 = Point::new(size.width/2.0,size.height) + self.get_pos().to_vec2();
-                let p0 = Point::new(size.width/2.0,10.0 + TEXT_SIZE*line as f64) /*+ data.pos.to_vec2()*/;    // TODO: better offset and use text size
+                let p0 = Point::new(size.width, 0.0) + line_offset;    
                 let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2() - data.pos.to_vec2();
                 let shape = Line::new(p0, p1);
                 let brush = Color::rgb8(128, 0, 0);
-                ctx.stroke(shape,&brush,5.0);   // TODO: better arrows, from correct line
+                ctx.stroke(shape,&brush,5.0);   // TODO: better arrows
             });
         }
     }

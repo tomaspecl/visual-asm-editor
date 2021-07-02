@@ -19,7 +19,7 @@ use crate::codeblock::*;
 use crate::util::*;
 
 use druid::kurbo::Vec2;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 use std::cell::RefCell;
 
 pub fn split(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
@@ -36,13 +36,11 @@ fn split_labels(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
 
         while labels.len()>1 {
             let new_string = block.text.split_off(labels.pop().unwrap().offset);
-            let new_block = Rc::new(RefCell::new(CodeBlock{
+            let new_block = Rc::new(RefCell::new(CodeBlock {
                 pos: block.pos+Vec2::new(0.0,20.0), //TODO: better positioning
-                size: Default::default(),
                 text: new_string,
                 next: block.next.clone(),
-                next_branch: Weak::new(),
-                next_branch_line: 0,
+                ..Default::default()
             }));
 
             block.next=Rc::downgrade(&new_block);
@@ -91,13 +89,11 @@ fn split_jumps(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
 
         for &split in splits.iter().rev() {
             let new_string = block.text.split_off(split);
-            let new_block = Rc::new(RefCell::new(CodeBlock{
+            let new_block = Rc::new(RefCell::new(CodeBlock {
                 pos: block.pos+Vec2::new(0.0,20.0), //TODO: better positioning
-                size: Default::default(),
                 text: new_string,
                 next: block.next.clone(),
-                next_branch: Weak::new(),
-                next_branch_line: 0,
+                ..Default::default()
             }));
 
             block.next=Rc::downgrade(&new_block);
