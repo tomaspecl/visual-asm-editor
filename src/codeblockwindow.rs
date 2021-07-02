@@ -56,7 +56,9 @@ impl CodeBlockWindow {
         let children = &mut self.children;
         let blocks = data.code.borrow();
 
-        children.retain(|e| e.has_valid_reference());
+        let mut children_changed = false;
+
+        children.retain(|e| e.has_valid_reference());   // TODO: return true when delete happened
 
         if children.len() != blocks.len() {
             //add new children
@@ -70,17 +72,18 @@ impl CodeBlockWindow {
                 }
                 if !contained {//.fix_size(200.0,200.0)
                     children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBoxHolder{child: TextBox::multiline()}).width(200.0)/*.padding(0.0)*/));
+                    children_changed = true;
                 }
             }
         }
 
-        true    // TODO: return false when children did not change
+        children_changed
     }
 }
 
 impl Widget<MyData> for CodeBlockWindow {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
-
+        // TODO: clip (mouse) events by view_rectangle
         match event {
 			Event::MouseUp(_) => data.mouse_click_pos=None,
 			Event::MouseDown(e) => {
@@ -114,34 +117,31 @@ impl Widget<MyData> for CodeBlockWindow {
 					next_branch: Default::default(),
 					next_branch_line: 0,
 				})));
-                ctx.request_update();
+                if self.manage_children(data) {
+                    ctx.children_changed();
+                }
+                return;
 			},
 			_ => ()
 		}
 
         for w in &mut self.children {
-            let force = false;  // TODO: what is the correct way?
-            //if let Some(child_event) = event.transform_scroll(self.offset.to_vec2(), ctx.size().to_rect(), force) {
-            let codeblock_refcell = w.get_codeblock();
-            let codeblock = codeblock_refcell.borrow();
-            let pos = codeblock.pos;
-            let size = codeblock.size;
-            let offset = self.offset.to_vec2();
-            drop(codeblock);
-            if let Some(child_event) = event.transform_scroll(-offset, Rect::from_origin_size(pos+offset, size), force) {
-                w.event(ctx,&child_event,data,env);
-            }
+            //dbg!(event);
+            w.event(ctx,event,data,env);
             if ctx.is_handled() {break;}
         }
         crate::splitter::split(&mut*data.code.borrow_mut());
         crate::linker::link(&mut*data.code.borrow_mut());
+
+        if self.manage_children(data) {
+            ctx.children_changed();
+        }
     }
 
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &MyData, env: &Env) {
         
         if self.manage_children(data) {
-            ctx.request_layout();
-            ctx.request_paint()
+            ctx.children_changed();
         }
 
         for w in &mut self.children {
@@ -152,9 +152,10 @@ impl Widget<MyData> for CodeBlockWindow {
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &MyData, data: &MyData, env: &Env) {
 
         if self.manage_children(data) {
-            ctx.request_layout();
-            ctx.request_paint()
+            ctx.children_changed();
         }
+
+        ctx.request_layout();
 
         for w in self.children.iter_mut() {
             w.update(ctx,old_data,data,env);
@@ -167,18 +168,16 @@ impl Widget<MyData> for CodeBlockWindow {
         for w in &mut self.children {
             let _size = w.layout(ctx,&childbc,data,env);
             let pos = w.get_pos();
-            w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos);
+            w.child.set_origin(ctx,&w.get_codeblock().borrow(),env,pos+self.offset.to_vec2());
         }
         bc.max()
     }
 
     fn paint(&mut self, ctx: &mut PaintCtx, data: &MyData, env: &Env) {
+        let view_rectangle = ctx.size().to_rect();
+        ctx.clip(view_rectangle);
         for w in &mut self.children {
-            let offset = self.offset.to_vec2();
-            ctx.with_save(|ctx|{
-                ctx.transform(Affine::translate(offset));
-                w.paint(ctx,data,env);
-            });
+            w.paint(ctx,data,env);
         }
     }
 }

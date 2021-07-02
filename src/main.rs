@@ -119,10 +119,12 @@ fn main() {
 	ret\
 	";
 
-	let text = "\
+	let _text = "\
 	;#codeblock,100,100,\n\
 	something
 	";
+
+	let text = "";
 
 	//let text3 = std::fs::read_to_string("asm.txt").unwrap();
 
