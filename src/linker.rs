@@ -29,7 +29,6 @@ Every codeblock has max one label which is at the top
  */
 
 pub fn link(code: &Vec<Rc<RefCell<CodeBlock>>>) {
-
     let labels = {
         let mut labels = Vec::new();
         for block in code {

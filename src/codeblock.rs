@@ -42,6 +42,7 @@ impl Clone for CodeBlocks {
     }
 }
 
+// TODO: is it even helping?
 impl Data for CodeBlocks {
     fn same(&self, other: &Self) -> bool {
         //println!("called same() on CodeBlocks - changed={} other={}", self.changed.get(), other.changed.get());
@@ -101,7 +102,6 @@ mod tests {
     use super::*;
     #[test]
     fn label_works() {
-
         let str="\
         fff:;ffffad\n\
         label :dsffsd\n\

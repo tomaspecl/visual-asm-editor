@@ -28,7 +28,6 @@ pub fn split(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
 }
 
 fn split_labels(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
-
     let mut new_blocks = Vec::new();
 
     for block in code.iter() {
@@ -55,7 +54,6 @@ fn split_labels(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
 }
 
 fn split_jumps(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
-
     let mut new_blocks = Vec::new();
 
     for block in code.iter() {

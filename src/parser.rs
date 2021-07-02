@@ -22,7 +22,6 @@ use std::rc::{Rc, Weak};
 use druid::kurbo::Point;
 
 pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
-
     let mut code = Vec::new();
 
     code.push(Rc::new(RefCell::new(CodeBlock{

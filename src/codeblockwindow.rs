@@ -20,7 +20,7 @@ use crate::codeblockholder::CodeBlockHolder;
 use crate::codeblock::CodeBlock;
 use crate::textboxholder::TextBoxHolder;
 
-use druid::{Code, Rect, RenderContext, Affine, Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetExt};
+use druid::{Code, RenderContext, Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx};
 use druid::kurbo::{Size, Point, Vec2};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -35,6 +35,7 @@ pub struct CodeBlockWindow {
     children: Vec<CodeBlockHolder>
 }
 
+#[allow(dead_code)]
 impl CodeBlockWindow {
     pub fn new() -> Self {
         CodeBlockWindow{
@@ -70,7 +71,7 @@ impl CodeBlockWindow {
                         break;
                     }
                 }
-                if !contained {//.fix_size(200.0,200.0)
+                if !contained {
                     children.push(CodeBlockHolder::new(Rc::downgrade(&block), SizedBox::new(TextBoxHolder{child: TextBox::multiline()}).width(200.0)/*.padding(0.0)*/));
                     children_changed = true;
                 }
@@ -126,7 +127,6 @@ impl Widget<MyData> for CodeBlockWindow {
 		}
 
         for w in &mut self.children {
-            //dbg!(event);
             w.event(ctx,event,data,env);
             if ctx.is_handled() {break;}
         }
@@ -139,7 +139,6 @@ impl Widget<MyData> for CodeBlockWindow {
     }
 
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &MyData, env: &Env) {
-        
         if self.manage_children(data) {
             ctx.children_changed();
         }
@@ -150,7 +149,6 @@ impl Widget<MyData> for CodeBlockWindow {
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &MyData, data: &MyData, env: &Env) {
-
         if self.manage_children(data) {
             ctx.children_changed();
         }

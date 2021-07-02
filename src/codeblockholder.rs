@@ -20,9 +20,8 @@ use crate::MyData;
 
 use std::rc::{Weak, Rc};
 use std::cell::RefCell;
-use druid::{Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetPod, Color, Code};
-use druid::kurbo::{Size, Line, Point, Affine};
-use druid::widget::prelude::RenderContext;
+use druid::{Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx, WidgetPod, Code};
+use druid::kurbo::{Size, Point};
 
 //holds a Weak reference to a CodeBlock
 //has fn has_valid_reference() -> bool      returns false when Weak reference is invalid
@@ -45,24 +44,12 @@ impl CodeBlockHolder {
             child: WidgetPod::new(Box::new(child)),
         }
     }
-    /*pub fn new(block: Weak<RefCell<CodeBlock>>, child: druid::widget::TextBox<CodeBlock>) -> Self {
-        CodeBlockHolder{
-            block,
-            child: WidgetPod::new(child),
-        }
-    }*/
 }
 
 impl Widget<MyData> for CodeBlockHolder {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
-        //if !ctx.is_hot() {
-        //    ctx.set_active(false);
-        //}
-        //dbg!(event);
         match event {
             Event::MouseDown(e) if data.drag_mode && self.child.layout_rect().contains(e.pos) => {
-                //ctx.request_focus();
-                //ctx.set_active(true);
                 data.mouse_click_pos=Some(e.pos)
             },
             Event::MouseUp(_) => {
@@ -70,11 +57,9 @@ impl Widget<MyData> for CodeBlockHolder {
             },
             Event::MouseMove(e) if self.child.layout_rect().contains(e.pos) => {
                 if let Some(pos)=data.mouse_click_pos {
-                    //println!("holder event {} {} {}",self.block.upgrade().unwrap().borrow().pos, self.child.layout_rect(), e.pos);
                     self.block.upgrade().unwrap().borrow_mut().pos+=e.pos-pos;
                     data.mouse_click_pos=Some(e.pos);
                 }
-                //ctx.request_layout();
             },
             Event::KeyDown(k) if k.code==Code::Delete && k.mods.ctrl() && self.child.is_hot()=> {
                 //delete itself
@@ -97,7 +82,6 @@ impl Widget<MyData> for CodeBlockHolder {
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: &MyData, _data: &MyData, env: &Env) {
         self.child.update(ctx,&*self.get_codeblock().borrow(),env);
-        //ctx.request_paint();
     }
 
     fn layout(&mut self, ctx: &mut LayoutCtx, bc: &BoxConstraints, _data: &MyData, env: &Env) -> Size {
