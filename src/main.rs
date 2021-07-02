@@ -120,7 +120,7 @@ fn main() {
 	";
 
 	let text = "\
-	;#codeblock,-100,-100,\n\
+	;#codeblock,100,100,\n\
 	something
 	";
 
@@ -151,7 +151,9 @@ fn ui_builder() -> impl Widget<MyData> {
 
 	//mytext_box..fix_width(400.0).fix_height(400.0);
 
-	let codeblockwindow = CodeBlockWindow::new();
+	let mut codeblockwindow = CodeBlockWindow::new();
+
+	//codeblockwindow.pan_to((-100.0,-100.0).into());
 
 	//druid::text::TextComponent
 	//druid::text::TextLayout
@@ -161,7 +163,7 @@ fn ui_builder() -> impl Widget<MyData> {
 
 	//SizedBox::new(codeblockwindow).width(2000.0).height(2000.0)
 
-	let mut clip_box = clip_box::ClipBox::new(codeblockwindow);
+	/*let mut clip_box = clip_box::ClipBox::new(codeblockwindow);
 
 	clip_box.set_do_clamping(false);
 	clip_box.pan_to((-200.0,-200.0).into());
@@ -200,11 +202,13 @@ fn ui_builder() -> impl Widget<MyData> {
 					next: Default::default(),
 					next_branch: Default::default(),
 					next_branch_line: 0,
-				})))},
+				})));
+				ctx.request_layout();
+			},
 			_ => ()
 		}
 		child.event(ctx,event,data,env)
-	});
+	});*/
 
 	//let map2 = lens::Map::new(|vec: &MyData| vec.code.borrow()[1].borrow().text.clone(), |vec: &mut MyData, data| vec.code.borrow_mut()[1].borrow_mut().text = data);
 	//let textbox2 = TextBox::new().lens(map2);
@@ -215,7 +219,7 @@ fn ui_builder() -> impl Widget<MyData> {
 
 	//Flex::column().with_child(button).with_child(textbox3).with_child(inter/*.fix_size(100.0,100.0)*/)
 //.fix_size(1000.0,1000.0)
-	Flex::column().with_child(button).with_flex_child(Padding::new(10.0,interceptor),1.0).debug_paint_layout()
+	Flex::column().with_child(button).with_flex_child(Padding::new(10.0, codeblockwindow/*interceptor*/),1.0).debug_paint_layout()
 
 	//let mut mywid = MyWidget::new();
     //mywid.add(mytext_box.lens(MyData::code));
