@@ -51,31 +51,109 @@ impl Widget<CodeBlock> for TextBoxHolder {
     fn paint(&mut self, ctx: &mut PaintCtx, data: &CodeBlock, env: &Env) {
         self.child.paint(ctx, &data.text, env);
 
-        let size = data.size;
+        let start = data;
 
         if let Some(next) = data.next.upgrade() {
-            let size_next = next.borrow().size;
+            let end = &*next.borrow();
 
-            let p0 = Point::new(size.width/2.0,size.height);
-            let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2() - data.pos.to_vec2();
-            let shape = Line::new(p0, p1);
-            let brush = Color::rgb8(128, 0, 0);
-            ctx.stroke(shape,&brush,5.0);   // TODO: better arrows
+            let arrow_start = Point::new(start.size.width*0.5, start.size.height);
+            let arrow_end = end.pos + Vec2::new(end.size.width*0.5, 0.0) - start.pos.to_vec2();
+
+            paint_arrow_from_bottom(ctx, arrow_start, arrow_end);
         }
         if let Some(next) = data.next_branch.upgrade() {
-            let size_next = next.borrow().size;
+            let end = &*next.borrow();
+
+            let side = preffered_side(start, end);
 
             let text_layout = &self.child.text().borrow().layout;
+            let line_offset = text_layout.point_for_text_position(data.next_branch_line_offset);
 
-            let line_offset = text_layout.point_for_text_position(data.next_branch_line_offset).to_vec2();
+            let arrow_start = match &side {
+                Side::Left => line_offset,
+                Side::Right => line_offset + Vec2::new(start.size.width, 0.0),
+            };
+            let arrow_end = end.pos + Vec2::new(end.size.width*0.5, 0.0) - start.pos.to_vec2();
 
-            ctx.with_save(|ctx|{
-                let p0 = Point::new(size.width, 0.0) + line_offset;    
-                let p1 = Point::new(size_next.width/2.0,0.0) + next.borrow().pos.to_vec2() - data.pos.to_vec2();
-                let shape = Line::new(p0, p1);
-                let brush = Color::rgb8(128, 0, 0);
-                ctx.stroke(shape,&brush,5.0);   // TODO: better arrows
-            });
+            paint_arrow_from_side(ctx, arrow_start, side, arrow_end);
         }
+    }
+}
+
+fn paint_arrow_from_bottom(ctx: &mut PaintCtx, start: Point, end: Point) {
+    let p1 = start + Vec2::new(0.0,10.0);
+    let p4 = end - Vec2::new(0.0,10.0);
+    let center = p1.midpoint(p4);   // TODO: pick center based on preffered side
+    let (p2,p3) = if p1.y < p4.y {
+        (Point::new(p1.x,center.y),Point::new(p4.x,center.y))
+    }else{
+        (Point::new(center.x,p1.y),Point::new(center.x,p4.y))
+    };
+
+    let brush = Color::rgb8(128, 0, 0);
+    
+    let line1 = Line::new(start, p1);
+    let line2 = Line::new(p1, p2);
+    let line3 = Line::new(p2, p3);
+    let line4 = Line::new(p3, p4);
+    let line5 = Line::new(p4, end);
+    
+    ctx.stroke(line1,&brush,5.0);   // TODO: make it actual arrows instead of just lines
+    ctx.stroke(line2,&brush,5.0);
+    ctx.stroke(line3,&brush,5.0);
+    ctx.stroke(line4,&brush,5.0);
+    ctx.stroke(line5,&brush,5.0);
+}
+
+fn paint_arrow_from_side(ctx: &mut PaintCtx, start: Point, preffered_side: Side, end: Point) {
+    let p3 = end - Vec2::new(0.0,10.0);
+    let (p1,p2) = match preffered_side {
+        Side::Left => {
+            let p1 = start - Vec2::new(10.0,0.0);
+            let p2 = if p1.x > p3.x && p1.y < p3.y {
+                Point::new(p3.x,p1.y)
+            }else{
+                Point::new(p1.x,p3.y)
+            };
+            (p1,p2)
+        },
+        Side::Right => {
+            let p1 = start + Vec2::new(10.0,0.0);
+            let p2 = if p1.x < p3.x && p1.y < p3.y {
+                Point::new(p3.x,p1.y)
+            }else{
+                Point::new(p1.x,p3.y)
+            };
+            (p1,p2)
+        }
+    };
+
+    let brush = Color::rgb8(128, 0, 0);
+
+    let line1 = Line::new(start, p1);
+    let line2 = Line::new(p1, p2);
+    let line3 = Line::new(p2, p3);
+    let line4 = Line::new(p3, end);
+
+    ctx.stroke(line1,&brush,5.0);   // TODO: make it actual arrows instead of just lines
+    ctx.stroke(line2,&brush,5.0);
+    ctx.stroke(line3,&brush,5.0);
+    ctx.stroke(line4,&brush,5.0);
+}
+
+enum Side {
+    Left,
+    Right
+}
+
+// TODO: better preffering
+fn preffered_side(start: &CodeBlock, end: &CodeBlock) -> Side {
+    let start_center = start.pos+start.size.to_vec2()*0.5;
+    let end_center = end.pos+end.size.to_vec2()*0.5;
+
+    if start_center.x < end_center.x {
+        Side::Right
+    }else{
+        Side::Left
     }
 }
