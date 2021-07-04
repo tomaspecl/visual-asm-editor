@@ -59,7 +59,7 @@ impl CodeBlockWindow {
 
         let mut children_changed = false;
 
-        children.retain(|e| e.has_valid_reference());   // TODO: return true when delete happened
+        children.retain(|e| e.has_valid_reference());   // TODO: return true when delete happened - probably unnecessary
 
         if children.len() != blocks.len() {
             //add new children
@@ -117,12 +117,18 @@ impl Widget<MyData> for CodeBlockWindow {
 			_ => ()
 		}
 
+        data.code.text_changed = false;
+
         for w in &mut self.children {
             w.event(ctx,event,data,env);
             if ctx.is_handled() {break;}
         }
-        crate::splitter::split(&mut*data.code.borrow_mut());
-        crate::linker::link(&mut*data.code.borrow_mut());
+
+        if data.code.text_changed {
+            println!("text changed");
+            crate::splitter::split(&mut*data.code.borrow_mut());
+            crate::linker::link(&mut*data.code.borrow_mut());
+        }
 
         if self.manage_children(data) {
             ctx.children_changed();

@@ -114,8 +114,14 @@ fn main() {
 	dbg!(&code);
 
 	let data = MyData{ code, mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false};
-    let main_window = WindowDesc::new(ui_builder());
+
+    let main_window = WindowDesc::new(ui_builder()).menu(menu_builder);
     AppLauncher::with_window(main_window)/*.log_to_console()*/.launch(data).expect("launch failed");
+}
+
+fn menu_builder(_winid: Option<WindowId>, _data: &MyData, _env: &Env) -> Menu<MyData> {
+	let file = druid::menu::sys::win::file::default::<MyData>();
+	druid::menu::Menu::new("File").entry(file)
 }
 
 fn ui_builder() -> impl Widget<MyData> {

@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-use std::cell::{RefCell, Ref, RefMut, Cell};
+use std::cell::{RefCell, Ref, RefMut};
 use std::rc::{Weak, Rc};
 use druid::kurbo::{Point, Size};
 use std::fmt::{Debug, Display, Formatter};
@@ -41,19 +41,21 @@ impl Default for CodeBlock {
             next: Weak::default(),
             next_branch: Weak::default(),
             next_branch_line: 0,
-            next_branch_line_offset: 0
+            next_branch_line_offset: 0,
         }
     }
 }
 
+#[derive(Data,Clone)]
 pub struct CodeBlocks {
-    pub changed: Cell<u64>,
+    pub text_changed: bool,
     vec: Rc<RefCell<Vec<Rc<RefCell<CodeBlock>>>>>,
 }
 
+/*
 impl Clone for CodeBlocks {
     fn clone(&self) -> Self {
-        CodeBlocks{changed: self.changed.clone(), vec: self.vec.clone()}
+        CodeBlocks{changed: self.text_changed.clone(), vec: self.vec.clone()}
     }
 }
 
@@ -63,12 +65,12 @@ impl Data for CodeBlocks {
         //println!("called same() on CodeBlocks - changed={} other={}", self.changed.get(), other.changed.get());
         self.changed.get() == other.changed.get()
     }
-}
+}*/
 
 impl CodeBlocks {
-    pub fn new(vec: Vec<Rc<RefCell<CodeBlock>>>) -> Self { CodeBlocks{changed: Cell::new(0), vec: Rc::new(RefCell::new(vec))} }
+    pub fn new(vec: Vec<Rc<RefCell<CodeBlock>>>) -> Self { CodeBlocks{text_changed: false, vec: Rc::new(RefCell::new(vec))} }
     pub fn borrow(&self) -> Ref<Vec<Rc<RefCell<CodeBlock>>>> { self.vec.borrow() }
-    pub fn borrow_mut(&self) -> RefMut<Vec<Rc<RefCell<CodeBlock>>>> { self.changed.set(self.changed.get()+1); self.vec.borrow_mut() }
+    pub fn borrow_mut(&self) -> RefMut<Vec<Rc<RefCell<CodeBlock>>>> { self.vec.borrow_mut() }
 }
 
 impl Display for CodeBlocks {

@@ -73,7 +73,17 @@ impl Widget<MyData> for CodeBlockHolder {
             },
             _ => ()
         }
-        self.child.event(ctx,event,&mut*self.get_codeblock().borrow_mut(),env)
+
+        let codeblock = self.get_codeblock();
+        let child_data = &mut*codeblock.borrow_mut();
+
+        let text = child_data.text.clone();
+
+        self.child.event(ctx,event,child_data,env);
+
+        if !text.eq(&child_data.text) {
+            data.code.text_changed = true;
+        }
     }
 
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, _data: &MyData, env: &Env) {
