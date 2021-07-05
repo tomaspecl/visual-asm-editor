@@ -29,11 +29,14 @@ use codeblock::*;
 
 use druid::*;
 use druid::widget::*;
+use std::path::PathBuf;
 use crate::codeblockwindow::CodeBlockWindow;
 
 #[derive(Clone, Data, Lens)]
 struct MyData {
 	code: CodeBlocks,
+	#[data(same_fn = "PartialEq::eq")]
+	current_file: PathBuf,
 	mouse_click_pos: Option<Point>,
 	mouse_pos: Point,
 	drag_mode: bool,
@@ -113,7 +116,7 @@ fn main() {
 
 	dbg!(&code);
 
-	let data = MyData{ code, mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false};
+	let data = MyData{ code, current_file: PathBuf::new(), mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false };
 
     let main_window = WindowDesc::new(ui_builder()).menu(menu_builder);
     AppLauncher::with_window(main_window)/*.log_to_console()*/.launch(data).expect("launch failed");
@@ -130,6 +133,47 @@ fn ui_builder() -> impl Widget<MyData> {
 
 	let codeblockwindow = CodeBlockWindow::new();
 
-	Flex::column().with_child(Flex::row().with_child(button).with_child(button2)).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout()
+	let command_handler = CommandHandler;
 
+	Flex::column().with_child(Flex::row().with_child(button).with_child(button2)).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout().controller(command_handler)
+
+}
+
+struct CommandHandler;
+
+impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
+    fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
+        match event {
+            Event::WindowCloseRequested => (),
+            Event::WindowDisconnected =>(),
+            Event::Paste(_) => (),
+            Event::Zoom(_) => (),
+            Event::Timer(_) => (),
+			Event::Notification(_) => (),
+            Event::Command(cmd) => {
+				if let Some(file) = cmd.get(commands::OPEN_FILE) {
+					// TODO: warn when current file is not saved
+					let path = file.path();
+					let text = std::fs::read_to_string(path).unwrap();	// TODO: dont unwrap
+					let mut new_data = parser::parse(&text);
+					splitter::split(&mut new_data);
+					linker::link(&new_data);
+					let code = CodeBlocks::new(new_data);
+					data.code = code;	// TODO: make sure that old data deallocates
+				}else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
+					let path = file.path();	// TODO: save current file path to data
+					data.current_file = path.to_path_buf();
+					let text = data.code.to_string();
+					match std::fs::write(path, text) {		// TODO: warn when file exists
+        				Ok(()) => (),
+        				Err(e) => println!("Could not write to file: {}",e),	// TODO: display a nice message
+    				}
+				}
+
+			},
+			_ => (),
+            
+        }
+        child.event(ctx, event, data, env)
+    }
 }

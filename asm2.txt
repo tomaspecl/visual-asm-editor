@@ -1,0 +1,57 @@
+;#codeblock,732,-86,
+﻿alloc:
+pushad
+mov ax, heapmap/16
+mov es, ax
+mov bx, sp
+add bx, 2+32	;bx obsahuje ukazatel na argument
+mov ax, [bx]	;ax obsahuje argument
+xor ecx,ecx	;cx obsahuje počítadlo kontrolovaného bitu
+
+;#codeblock,452,345,
+bit1:
+mov dx, ax	;dx obsahuje počítadlo potřebných po sobě jdoucích 0-bitů
+
+;#codeblock,-154,524,
+loop1:
+bt [es:0], ecx
+inc cx
+jz heapend
+
+;#codeblock,223,196,
+jc bit1
+dec dx
+
+;#codeblock,182,385,
+jz nalezeno
+jmp loop1
+
+;#codeblock,426,710,
+heapend:
+jc nenalezeno
+dec dx
+
+;#codeblock,426,821,
+jz nalezeno
+
+;#codeblock,274,934,
+nenalezeno:
+stc
+popad
+ret
+
+;#codeblock,-322,847,
+nalezeno:
+mov dx, ax
+sub cx, ax
+mov [bx], cx
+
+;#codeblock,-322,1013,
+loop2:
+bts [es:0], ecx
+inc cx
+dec dx
+jnz loop2
+clc
+popad
+ret

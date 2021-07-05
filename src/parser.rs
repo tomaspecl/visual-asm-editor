@@ -21,6 +21,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use druid::kurbo::Point;
 
+// TODO: return Result instead of unwraping
 pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
     let mut code = Vec::new();
 
