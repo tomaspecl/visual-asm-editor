@@ -52,21 +52,6 @@ pub struct CodeBlocks {
     vec: Rc<RefCell<Vec<Rc<RefCell<CodeBlock>>>>>,
 }
 
-/*
-impl Clone for CodeBlocks {
-    fn clone(&self) -> Self {
-        CodeBlocks{changed: self.text_changed.clone(), vec: self.vec.clone()}
-    }
-}
-
-// TODO: is it even helping?
-impl Data for CodeBlocks {
-    fn same(&self, other: &Self) -> bool {
-        //println!("called same() on CodeBlocks - changed={} other={}", self.changed.get(), other.changed.get());
-        self.changed.get() == other.changed.get()
-    }
-}*/
-
 impl CodeBlocks {
     pub fn new(vec: Vec<Rc<RefCell<CodeBlock>>>) -> Self { CodeBlocks{text_changed: false, vec: Rc::new(RefCell::new(vec))} }
     pub fn borrow(&self) -> Ref<Vec<Rc<RefCell<CodeBlock>>>> { self.vec.borrow() }

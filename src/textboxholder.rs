@@ -43,7 +43,6 @@ impl Widget<CodeBlock> for TextBoxHolder {
                     let input_handler = self.child.text_mut().input_handler();
                     if let Some(mut x) = input_handler.acquire(true) {
                         x.handle_action(TextAction::Move(Movement::ParagraphEnd));
-                        //ctx.invalidate_text_input(text::ImeInvalidation::SelectionChanged);
                     }
                     input_handler.release();
                     self.child.event(ctx, &Event::ImeStateChange, &mut data.text, env);

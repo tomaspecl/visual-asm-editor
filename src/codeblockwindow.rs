@@ -79,75 +79,78 @@ impl CodeBlockWindow {
 
 impl Widget<MyData> for CodeBlockWindow {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
-        // TODO: clip (mouse) events by view_rectangle
-        match event {
-			Event::MouseUp(_) => data.mouse_click_pos=None,
-			Event::MouseDown(e) => {
-				ctx.request_focus();
-				ctx.set_active(true);
-
-				if e.mods.ctrl() {
-					data.mouse_click_pos=Some(e.pos);
-					return;
-				}
-			},
-			Event::MouseMove(e) => {
-				data.mouse_pos = e.pos;
-				if e.mods.ctrl() {
-					if let Some(pos) = data.mouse_click_pos {
-						self.pan_by(e.pos-pos);
-						data.mouse_click_pos=Some(e.pos);
-						ctx.request_update();
-						return;
-					}
-				}
-			},
-			Event::KeyDown(e) if e.code==Code::KeyD && e.mods.ctrl() => data.drag_mode=true,
-			Event::KeyDown(e) if e.code==Code::Escape => data.drag_mode=false,
-			Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {     // TODO: focus on the new CodeBlock
-				data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
-					pos: data.mouse_pos - self.offset.to_vec2(),
-					..Default::default()
-				})));
-                if self.manage_children(data) {
-                    ctx.children_changed();
-
-                    // Every new added widget will get focus
-                    if let Some(last_child) = self.children.last() {
-                        let id  = last_child.child.id();
-                        println!("set focus on {:?}",id);
-                        ctx.set_focus(id);
+        if let Some(event) = event.transform_scroll(Vec2::ZERO, ctx.size().to_rect(), false) {
+            match &event {
+                Event::MouseUp(_) => data.mouse_click_pos=None,
+                Event::MouseDown(e) => {
+                    ctx.request_focus();
+                    ctx.set_active(true);
+    
+                    if e.mods.ctrl() {
+                        data.mouse_click_pos=Some(e.pos);
+                        return;
                     }
+                },
+                Event::MouseMove(e) => {
+                    data.mouse_pos = e.pos;
+                    if e.mods.ctrl() {
+                        if let Some(pos) = data.mouse_click_pos {
+                            self.pan_by(e.pos-pos);
+                            data.mouse_click_pos=Some(e.pos);
+                            ctx.request_update();
+                            return;
+                        }
+                    }
+                },
+                Event::KeyDown(e) if e.code==Code::KeyD && e.mods.ctrl() => data.drag_mode=true,
+                Event::KeyDown(e) if e.code==Code::Escape => data.drag_mode=false,
+                Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {
+                    data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
+                        pos: data.mouse_pos - self.offset.to_vec2(),
+                        ..Default::default()
+                    })));
+                    if self.manage_children(data) {
+                        ctx.children_changed();
+    
+                        // Every new added widget will get focus
+                        if let Some(last_child) = self.children.last() {
+                            let id  = last_child.child.id();
+                            println!("set focus on {:?}",id);
+                            ctx.set_focus(id);
+                        }
+                    }
+                    return;
+                },
+                _ => ()
+            }
+    
+            data.code.text_changed = false;
+    
+            for w in &mut self.children {
+                w.event(ctx,&event,data,env);
+                if ctx.is_handled() {break;}
+            }
+    
+            if data.code.text_changed {
+                crate::splitter::split(&mut*data.code.borrow_mut());
+                crate::linker::link(&mut*data.code.borrow_mut());
+            }
+    
+            if self.manage_children(data) {
+                ctx.children_changed();
+    
+                // Every new added widget will get focus
+                if let Some(last_child) = self.children.last_mut() {
+                    // when CodeBlock is split then the newly created one is focused
+                    let id  = last_child.child.id();                        
+                    println!("set focus on {:?}",id);
+                    ctx.set_focus(id);
+    
+                    //then a command is sent to inform the TextBoxHolder that it should make its TextBox move the cursor to the end of line
+                    let selector = druid::Selector::new("move_cursor_to_end");
+                    let command = druid::Command::new(selector, (), druid::Target::Global);
+                    ctx.submit_command(command);
                 }
-                return;
-			},
-			_ => ()
-		}
-
-        data.code.text_changed = false;
-
-        for w in &mut self.children {
-            w.event(ctx,event,data,env);
-            if ctx.is_handled() {break;}
-        }
-
-        if data.code.text_changed {
-            crate::splitter::split(&mut*data.code.borrow_mut());
-            crate::linker::link(&mut*data.code.borrow_mut());
-        }
-
-        if self.manage_children(data) {
-            ctx.children_changed();
-
-            // Every new added widget will get focus
-            if let Some(last_child) = self.children.last_mut() {
-                let id  = last_child.child.id();                        // when CodeBlock is split then the newly created one is focused
-                println!("set focus on {:?}",id);
-                ctx.set_focus(id);
-
-                let selector = druid::Selector::new("move_cursor_to_end");
-                let command = druid::Command::new(selector, (), druid::Target::Global);
-                ctx.submit_command(command);
             }
         }
     }
