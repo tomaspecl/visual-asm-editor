@@ -34,7 +34,7 @@ fn split_labels(code: &mut Vec<Rc<RefCell<CodeBlock>>>) {
         let mut block = block.borrow_mut();
         let mut labels = block.label();
 
-        while labels.len()>1 {
+        while labels.len()>1 || labels.last().map_or(false, |x| x.offset!=0) {
             let new_string = block.text.split_off(labels.pop().unwrap().offset);
             let new_block = Rc::new(RefCell::new(CodeBlock {
                 pos: block.pos+Vec2::new(0.0,20.0), //TODO: better positioning

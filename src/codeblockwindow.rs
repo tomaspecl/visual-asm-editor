@@ -20,7 +20,7 @@ use crate::codeblockholder::CodeBlockHolder;
 use crate::codeblock::CodeBlock;
 use crate::textboxholder::TextBoxHolder;
 
-use druid::{Code, RenderContext, Widget, EventCtx, LifeCycle, PaintCtx, BoxConstraints, LifeCycleCtx, LayoutCtx, Event, Env, UpdateCtx};
+use druid::{BoxConstraints, Code, Env, Event, EventCtx, LayoutCtx, LifeCycle, LifeCycleCtx, PaintCtx, RenderContext, UpdateCtx, Widget};
 use druid::kurbo::{Size, Point, Vec2};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -104,13 +104,20 @@ impl Widget<MyData> for CodeBlockWindow {
 			},
 			Event::KeyDown(e) if e.code==Code::KeyD && e.mods.ctrl() => data.drag_mode=true,
 			Event::KeyDown(e) if e.code==Code::Escape => data.drag_mode=false,
-			Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {
+			Event::KeyDown(e) if e.code==Code::Insert && e.mods.ctrl() => {     // TODO: focus on the new CodeBlock
 				data.code.borrow_mut().push(Rc::new(RefCell::new(CodeBlock{
 					pos: data.mouse_pos - self.offset.to_vec2(),
 					..Default::default()
 				})));
                 if self.manage_children(data) {
                     ctx.children_changed();
+
+                    // Every new added widget will get focus
+                    if let Some(last_child) = self.children.last() {
+                        let id  = last_child.child.id();
+                        println!("set focus on {:?}",id);
+                        ctx.set_focus(id);
+                    }
                 }
                 return;
 			},
@@ -125,13 +132,23 @@ impl Widget<MyData> for CodeBlockWindow {
         }
 
         if data.code.text_changed {
-            println!("text changed");
             crate::splitter::split(&mut*data.code.borrow_mut());
             crate::linker::link(&mut*data.code.borrow_mut());
         }
 
         if self.manage_children(data) {
             ctx.children_changed();
+
+            // Every new added widget will get focus
+            if let Some(last_child) = self.children.last_mut() {
+                let id  = last_child.child.id();                        // when CodeBlock is split then the newly created one is focused
+                println!("set focus on {:?}",id);
+                ctx.set_focus(id);
+
+                let selector = druid::Selector::new("move_cursor_to_end");
+                let command = druid::Command::new(selector, (), druid::Target::Global);
+                ctx.submit_command(command);
+            }
         }
     }
 

@@ -145,7 +145,7 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
     fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
         match event {
             Event::WindowCloseRequested => (),
-            Event::WindowDisconnected =>(),
+            Event::WindowDisconnected => (),
             Event::Paste(_) => (),
             Event::Zoom(_) => (),
             Event::Timer(_) => (),
@@ -161,7 +161,7 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
 					let code = CodeBlocks::new(new_data);
 					data.code = code;	// TODO: make sure that old data deallocates
 				}else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
-					let path = file.path();	// TODO: save current file path to data
+					let path = file.path();
 					data.current_file = path.to_path_buf();
 					let text = data.code.to_string();
 					match std::fs::write(path, text) {		// TODO: warn when file exists

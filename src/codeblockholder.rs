@@ -69,6 +69,7 @@ impl Widget<MyData> for CodeBlockHolder {
                 ctx.set_handled();
                 ctx.resign_focus();
                 ctx.set_active(false);
+                ctx.request_update();
                 return;
             },
             _ => ()

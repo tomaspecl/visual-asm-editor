@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 use crate::codeblock::CodeBlock;
 
+use druid::text::{ImeHandlerRef, Movement, TextAction};
 use kurbo::Line;
 use druid::widget::TextBox;
 use druid::*;
@@ -36,6 +37,20 @@ const TEXT_SIZE: f64 = 15.0;
 
 impl Widget<CodeBlock> for TextBoxHolder { 
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut CodeBlock, env: &Env) {
+        match event {
+            Event::Command(c) => {
+                if let Some(()) = c.get(druid::Selector::new("move_cursor_to_end")) {
+                    let input_handler = self.child.text_mut().input_handler();
+                    if let Some(mut x) = input_handler.acquire(true) {
+                        x.handle_action(TextAction::Move(Movement::ParagraphEnd));
+                        //ctx.invalidate_text_input(text::ImeInvalidation::SelectionChanged);
+                    }
+                    input_handler.release();
+                    self.child.event(ctx, &Event::ImeStateChange, &mut data.text, env);
+                }
+            },
+            _ => ()
+        }
         self.child.event(ctx, event, &mut data.text, env);
     }
     fn lifecycle(&mut self, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &CodeBlock, env: &Env) {
