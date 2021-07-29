@@ -81,6 +81,13 @@ impl Widget<MyData> for CodeBlockWindow {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut MyData, env: &Env) {
         if let Some(event) = event.transform_scroll(Vec2::ZERO, ctx.size().to_rect(), false) {
             match &event {
+                Event::Command(c) => {
+                    if let Some(()) = c.get(druid::Selector::new("reload")) {
+                        let _ = self.manage_children(data);
+                        ctx.children_changed();
+                        return;
+                    }
+                },
                 Event::MouseUp(_) => data.mouse_click_pos=None,
                 Event::MouseDown(e) => {
                     ctx.request_focus();
@@ -168,6 +175,7 @@ impl Widget<MyData> for CodeBlockWindow {
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: &MyData, data: &MyData, env: &Env) {
         if self.manage_children(data) {
             ctx.children_changed();
+            return;
         }
 
         ctx.request_layout();

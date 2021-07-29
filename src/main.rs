@@ -123,7 +123,15 @@ fn main() {
 }
 
 fn menu_builder(_winid: Option<WindowId>, _data: &MyData, _env: &Env) -> Menu<MyData> {
-	let file = druid::menu::sys::win::file::default::<MyData>();
+	use druid::menu::sys::win::file;
+	//let file = file::default::<MyData>();
+
+	let file = Menu::new(LocalizedString::new("common-menu-file-menu"))
+	.entry(file::open())
+	.entry(file::save_as())
+	.separator()
+	.entry(file::exit());
+
 	druid::menu::Menu::new("File").entry(file)
 }
 
@@ -160,6 +168,11 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
 					linker::link(&new_data);
 					let code = CodeBlocks::new(new_data);
 					data.code = code;	// TODO: make sure that old data deallocates
+
+					let selector = druid::Selector::new("reload");
+                    let command = druid::Command::new(selector, (), druid::Target::Global);
+                    ctx.submit_command(command);
+					return;
 				}else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
 					let path = file.path();
 					data.current_file = path.to_path_buf();
