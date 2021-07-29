@@ -153,10 +153,10 @@ impl Debug for CodeBlocks {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let code = self.borrow();
         write!(f,"[\n\n")?;
-	    for part in &*code {
-		    write!(f,"Rc({:p}, weak:{}) {:?}\n\n",*part,Rc::weak_count(part),**part)?;
-	    }
-	    write!(f,"]\n")
+        for part in &*code {
+            write!(f,"Rc({:p}, weak:{}) {:?}\n\n",*part,Rc::weak_count(part),**part)?;
+        }
+        write!(f,"]\n")
     }
 }
 

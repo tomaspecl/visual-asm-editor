@@ -34,116 +34,116 @@ use crate::codeblockwindow::CodeBlockWindow;
 
 #[derive(Clone, Data, Lens)]
 struct MyData {
-	code: CodeBlocks,
-	#[data(same_fn = "PartialEq::eq")]
-	current_file: PathBuf,
-	mouse_click_pos: Option<Point>,
-	mouse_pos: Point,
-	drag_mode: bool,
+    code: CodeBlocks,
+    #[data(same_fn = "PartialEq::eq")]
+    current_file: PathBuf,
+    mouse_click_pos: Option<Point>,
+    mouse_pos: Point,
+    drag_mode: bool,
 }
 
 fn main() {
-	let _text = "\
-	;#codeblock,0,200,\n\
-	;add array elements [bytes]\n\
-	;start of array in ebx;length in ecx;sum in eax \n\
-	myfunc:\n\
-	add ecx, ebx\n\
-	xor eax, eax\n\
-	;#codeblock,160,80,\n\
-	loop:\n\
-	cmp ebx, ecx\n\
-	je end\n\
-	;#codeblock,260,20,\n\
-	movzx edx, byte [ebc]\n\
-	add eax, edx\n\
-	inc ebx\n\
-	jmp loop\n\
-	;#codeblock,160,300,\n\
-	end:\n\
-	ret\
-	";
+    let _text = "\
+    ;#codeblock,0,200,\n\
+    ;add array elements [bytes]\n\
+    ;start of array in ebx;length in ecx;sum in eax \n\
+    myfunc:\n\
+    add ecx, ebx\n\
+    xor eax, eax\n\
+    ;#codeblock,160,80,\n\
+    loop:\n\
+    cmp ebx, ecx\n\
+    je end\n\
+    ;#codeblock,260,20,\n\
+    movzx edx, byte [ebc]\n\
+    add eax, edx\n\
+    inc ebx\n\
+    jmp loop\n\
+    ;#codeblock,160,300,\n\
+    end:\n\
+    ret\
+    ";
 
-	let _text2 = "\
-	;#codeblock,0,100,\n\
-	;add array elements [bytes]\n\
-	;start of array in ebx;length in ecx;sum in eax \n\
-	myfunc:\n\
-	add ecx, ebx\n\
-	xor eax, eax\n\
-	;#codeblock,80,40,\n\
-	loop:\n\
-	cmp ebx, ecx\n\
-	je end\n\
-	movzx edx, byte [ebc]\n\
-	add eax, edx\n\
-	inc ebx\n\
-	jmp loop\n\
-	;#codeblock,80,150,\n\
-	end:\n\
-	ret\
-	";
+    let _text2 = "\
+    ;#codeblock,0,100,\n\
+    ;add array elements [bytes]\n\
+    ;start of array in ebx;length in ecx;sum in eax \n\
+    myfunc:\n\
+    add ecx, ebx\n\
+    xor eax, eax\n\
+    ;#codeblock,80,40,\n\
+    loop:\n\
+    cmp ebx, ecx\n\
+    je end\n\
+    movzx edx, byte [ebc]\n\
+    add eax, edx\n\
+    inc ebx\n\
+    jmp loop\n\
+    ;#codeblock,80,150,\n\
+    end:\n\
+    ret\
+    ";
 
-	let _text3 = "\
-	;add array elements [bytes]\n\
-	;start of array in ebx;length in ecx;sum in eax \n\
-	myfunc:\n\
-	add ecx, ebx\n\
-	xor eax, eax\n\
-	loop:\n\
-	cmp ebx, ecx\n\
-	je end\n\
-	movzx edx, byte [ebc]\n\
-	add eax, edx\n\
-	inc ebx\n\
-	jmp loop\n\
-	end:\n\
-	ret\
-	";
+    let _text3 = "\
+    ;add array elements [bytes]\n\
+    ;start of array in ebx;length in ecx;sum in eax \n\
+    myfunc:\n\
+    add ecx, ebx\n\
+    xor eax, eax\n\
+    loop:\n\
+    cmp ebx, ecx\n\
+    je end\n\
+    movzx edx, byte [ebc]\n\
+    add eax, edx\n\
+    inc ebx\n\
+    jmp loop\n\
+    end:\n\
+    ret\
+    ";
 
-	let _text4 = "\
-	;#codeblock,100,100,\n\
-	something
-	";
+    let _text4 = "\
+    ;#codeblock,100,100,\n\
+    something
+    ";
 
-	let _text5 = std::fs::read_to_string("asm.txt").unwrap();
+    let _text5 = std::fs::read_to_string("asm.txt").unwrap();
 
-	let mut data = parser::parse(&_text);
-	splitter::split(&mut data);
-	linker::link(&data);
+    let mut data = parser::parse(&_text);
+    splitter::split(&mut data);
+    linker::link(&data);
 
-	let code = CodeBlocks::new(data);
+    let code = CodeBlocks::new(data);
 
-	dbg!(&code);
+    dbg!(&code);
 
-	let data = MyData{ code, current_file: PathBuf::new(), mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false };
+    let data = MyData{ code, current_file: PathBuf::new(), mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false };
 
     let main_window = WindowDesc::new(ui_builder()).menu(menu_builder);
     AppLauncher::with_window(main_window)/*.log_to_console()*/.launch(data).expect("launch failed");
 }
 
 fn menu_builder(_winid: Option<WindowId>, _data: &MyData, _env: &Env) -> Menu<MyData> {
-	use druid::menu::sys::win::file;
-	//let file = file::default::<MyData>();
+    use druid::menu::sys::win::file;
+    //let file = file::default::<MyData>();
 
-	let file = Menu::new(LocalizedString::new("common-menu-file-menu"))
-	.entry(file::open())
-	.entry(file::save_as())
-	.separator()
-	.entry(file::exit());
+    let file = Menu::new(LocalizedString::new("common-menu-file-menu"))
+    .entry(file::open())
+    .entry(file::save_as())
+    .separator()
+    .entry(file::exit());
 
-	druid::menu::Menu::new("File").entry(file)
+    druid::menu::Menu::new("File").entry(file)
 }
 
 fn ui_builder() -> impl Widget<MyData> {
-	let button = Button::new("print debug").on_click(|_ctx, data: &mut MyData, _env| {dbg!(&data.code);}).padding(5.0);
-	let button2 = Button::new("print").on_click(|_ctx, data: &mut MyData, _env| println!("{}",data.code) ).padding(5.0);
+    let button = Button::new("print debug").on_click(|_ctx, data: &mut MyData, _env| {dbg!(&data.code);}).padding(5.0);
+    let button2 = Button::new("print").on_click(|_ctx, data: &mut MyData, _env| println!("{}",data.code) ).padding(5.0);
 
-	let codeblockwindow = CodeBlockWindow::new();
+    let codeblockwindow = CodeBlockWindow::new();
 
-	let command_handler = CommandHandler;
+    let command_handler = CommandHandler;
 
-	Flex::column().with_child(Flex::row().with_child(button).with_child(button2)).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout().controller(command_handler)
+    Flex::column().with_child(Flex::row().with_child(button).with_child(button2)).with_flex_child(Padding::new(10.0, codeblockwindow),1.0).debug_paint_layout().controller(command_handler)
 
 }
 
@@ -157,34 +157,34 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
             Event::Paste(_) => (),
             Event::Zoom(_) => (),
             Event::Timer(_) => (),
-			Event::Notification(_) => (),
+            Event::Notification(_) => (),
             Event::Command(cmd) => {
-				if let Some(file) = cmd.get(commands::OPEN_FILE) {
-					// TODO: warn when current file is not saved
-					let path = file.path();
-					let text = std::fs::read_to_string(path).unwrap();	// TODO: dont unwrap
-					let mut new_data = parser::parse(&text);
-					splitter::split(&mut new_data);
-					linker::link(&new_data);
-					let code = CodeBlocks::new(new_data);
-					data.code = code;	// TODO: make sure that old data deallocates
+                if let Some(file) = cmd.get(commands::OPEN_FILE) {
+                    // TODO: warn when current file is not saved
+                    let path = file.path();
+                    let text = std::fs::read_to_string(path).unwrap();	// TODO: dont unwrap
+                    let mut new_data = parser::parse(&text);
+                    splitter::split(&mut new_data);
+                    linker::link(&new_data);
+                    let code = CodeBlocks::new(new_data);
+                    data.code = code;	// TODO: make sure that old data deallocates
 
-					let selector = druid::Selector::new("reload");
+                    let selector = druid::Selector::new("reload");
                     let command = druid::Command::new(selector, (), druid::Target::Global);
                     ctx.submit_command(command);
-					return;
-				}else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
-					let path = file.path();
-					data.current_file = path.to_path_buf();
-					let text = data.code.to_string();
-					match std::fs::write(path, text) {		// TODO: warn when file exists
-        				Ok(()) => (),
-        				Err(e) => println!("Could not write to file: {}",e),	// TODO: display a nice message
-    				}
-				}
+                    return;
+                }else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
+                    let path = file.path();
+                    data.current_file = path.to_path_buf();
+                    let text = data.code.to_string();
+                    match std::fs::write(path, text) {		// TODO: warn when file exists
+                        Ok(()) => (),
+                        Err(e) => println!("Could not write to file: {}",e),	// TODO: display a nice message
+                    }
+                }
 
-			},
-			_ => (),
+            },
+            _ => (),
             
         }
         child.event(ctx, event, data, env)
