@@ -64,6 +64,28 @@ fn main() {
     ret\
     ";
 
+    let _text1 = "\
+    ;#codeblock,508,11,\n\
+    ;add array elements [bytes]\n\
+    ;start of array in ebx;length in ecx;sum in eax\n\
+    ;#codeblock,591,152,\n\
+    myfunc:\n\
+    add ecx, ebx\n\
+    xor eax, eax\n\
+    ;#codeblock,470,313,\n\
+    loop:\n\
+    cmp ebx, ecx\n\
+    je end\n\
+    ;#codeblock,191,434,\n\
+    movzx edx, byte [ebc]\n\
+    add eax, edx\n\
+    inc ebx\n\
+    jmp loop\n\
+    ;#codeblock,831,497,\n\
+    end:\n\
+    ret\
+    ";
+
     let _text2 = "\
     ;#codeblock,0,100,\n\
     ;add array elements [bytes]\n\
@@ -106,9 +128,7 @@ fn main() {
     something
     ";
 
-    let _text5 = std::fs::read_to_string("asm.txt").unwrap();
-
-    let mut data = parser::parse(&_text);
+    let mut data = parser::parse(&_text1);
     splitter::split(&mut data);
     linker::link(&data);
 

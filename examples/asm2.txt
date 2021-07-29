@@ -1,4 +1,4 @@
-;#codeblock,732,-86,
+;#codeblock,504,-262,
 ﻿alloc:
 pushad
 mov ax, heapmap/16
@@ -12,17 +12,17 @@ xor ecx,ecx	;cx obsahuje počítadlo kontrolovaného bitu
 bit1:
 mov dx, ax	;dx obsahuje počítadlo potřebných po sobě jdoucích 0-bitů
 
-;#codeblock,-154,524,
+;#codeblock,-118,510,
 loop1:
 bt [es:0], ecx
 inc cx
 jz heapend
 
-;#codeblock,223,196,
+;#codeblock,207,201,
 jc bit1
 dec dx
 
-;#codeblock,182,385,
+;#codeblock,193,331,
 jz nalezeno
 jmp loop1
 
@@ -40,13 +40,13 @@ stc
 popad
 ret
 
-;#codeblock,-322,847,
+;#codeblock,-316,1157,
 nalezeno:
 mov dx, ax
 sub cx, ax
 mov [bx], cx
 
-;#codeblock,-322,1013,
+;#codeblock,-221,1372,
 loop2:
 bts [es:0], ecx
 inc cx
