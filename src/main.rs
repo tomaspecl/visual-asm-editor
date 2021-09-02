@@ -29,6 +29,7 @@ use codeblock::*;
 
 use druid::*;
 use druid::widget::*;
+use std::io::Write;
 use std::path::PathBuf;
 use crate::codeblockwindow::CodeBlockWindow;
 
@@ -179,33 +180,44 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
             Event::Timer(_) => (),
             Event::Notification(_) => (),
             Event::Command(cmd) => {
+                // TODO: display nice error messages
                 if let Some(file) = cmd.get(commands::OPEN_FILE) {
                     // TODO: warn when current file is not saved
                     let path = file.path();
-                    let text = std::fs::read_to_string(path).unwrap();	// TODO: dont unwrap
-                    let mut new_data = parser::parse(&text);
-                    splitter::split(&mut new_data);
-                    linker::link(&new_data);
-                    let code = CodeBlocks::new(new_data);
-                    data.code = code;
+                    match std::fs::read_to_string(path) {
+                        Ok(text) => {
+                            let mut new_data = parser::parse(&text);
+                            splitter::split(&mut new_data);
+                            linker::link(&new_data);
+                            let code = CodeBlocks::new(new_data);
+                            data.code = code;
 
-                    let selector = druid::Selector::new("reload");
-                    let command = druid::Command::new(selector, (), druid::Target::Global);
-                    ctx.submit_command(command);
-                    return;
+                            let selector = druid::Selector::new("reload");
+                            let command = druid::Command::new(selector, (), druid::Target::Global);
+                            ctx.submit_command(command);
+                            return;
+                        },
+                        Err(e) => println!("Could not read file: {}", e),
+                    }
                 }else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
                     let path = file.path();
                     data.current_file = path.to_path_buf();
-                    let text = data.code.to_string();
-                    match std::fs::write(path, text) {		// TODO: warn when file exists
-                        Ok(()) => (),
-                        Err(e) => println!("Could not write to file: {}",e),	// TODO: display a nice message
+
+                    let file = std::fs::OpenOptions::new().write(true).create_new(true).open(path);
+
+                    match file {
+                        Ok(mut file) => {
+                            let text = data.code.to_string();
+                            if let Err(e) = file.write_all(text.as_bytes()) {
+                                println!("Could not write to file: {}",e);
+                            }
+                        },
+                        Err(e) => println!("Could not create file: {}",e),
                     }
                 }
-
+                // TODO: add SAVE_FILE command
             },
             _ => (),
-            
         }
         child.event(ctx, event, data, env)
     }
