@@ -187,7 +187,7 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                     splitter::split(&mut new_data);
                     linker::link(&new_data);
                     let code = CodeBlocks::new(new_data);
-                    data.code = code;	// TODO: make sure that old data deallocates
+                    data.code = code;
 
                     let selector = druid::Selector::new("reload");
                     let command = druid::Command::new(selector, (), druid::Target::Global);

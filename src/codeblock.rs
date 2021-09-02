@@ -58,6 +58,14 @@ impl CodeBlocks {
     pub fn borrow_mut(&self) -> RefMut<Vec<Rc<RefCell<CodeBlock>>>> { self.vec.borrow_mut() }
 }
 
+impl Drop for CodeBlocks {
+    fn drop(&mut self) {
+        if Rc::strong_count(&self.vec) == 1 {
+            println!("CodeBlocks dropped");
+        }
+    }
+}
+
 impl Display for CodeBlocks {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let vec = self.borrow();
