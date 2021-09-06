@@ -37,7 +37,7 @@ use crate::codeblockwindow::CodeBlockWindow;
 struct MyData {
     code: CodeBlocks,
     #[data(same_fn = "PartialEq::eq")]
-    current_file: PathBuf,
+    current_file: Option<PathBuf>,
     mouse_click_pos: Option<Point>,
     mouse_pos: Point,
     drag_mode: bool,
@@ -137,7 +137,7 @@ fn main() {
 
     dbg!(&code);
 
-    let data = MyData{ code, current_file: PathBuf::new(), mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false };
+    let data = MyData{ code, current_file: None, mouse_click_pos: None, mouse_pos: Point::new(0.0,0.0), drag_mode: false };
 
     let main_window = WindowDesc::new(ui_builder()).menu(menu_builder);
     AppLauncher::with_window(main_window)/*.log_to_console()*/.launch(data).expect("launch failed");
@@ -149,6 +149,7 @@ fn menu_builder(_winid: Option<WindowId>, _data: &MyData, _env: &Env) -> Menu<My
 
     let file = Menu::new(LocalizedString::new("common-menu-file-menu"))
     .entry(file::open())
+    .entry(file::save())
     .entry(file::save_as())
     .separator()
     .entry(file::exit());
@@ -186,6 +187,8 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                     let path = file.path();
                     match std::fs::read_to_string(path) {
                         Ok(text) => {
+                            data.current_file = Some(path.to_path_buf());
+
                             let mut new_data = parser::parse(&text);
                             splitter::split(&mut new_data);
                             linker::link(&new_data);
@@ -201,12 +204,13 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                     }
                 }else if let Some(file) = cmd.get(commands::SAVE_FILE_AS) {
                     let path = file.path();
-                    data.current_file = path.to_path_buf();
 
                     let file = std::fs::OpenOptions::new().write(true).create_new(true).open(path);
 
                     match file {
                         Ok(mut file) => {
+                            data.current_file = Some(path.to_path_buf());
+
                             let text = data.code.to_string();
                             if let Err(e) = file.write_all(text.as_bytes()) {
                                 println!("Could not write to file: {}",e);
@@ -214,8 +218,23 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                         },
                         Err(e) => println!("Could not create file: {}",e),
                     }
+                }else if let Some(()) = cmd.get(commands::SAVE_FILE) {
+                    if let Some(pathbuf) = &data.current_file {
+                        let file = std::fs::OpenOptions::new().write(true).open(pathbuf);
+
+                        match file {
+                            Ok(mut file) => {
+                                let text = data.code.to_string();
+                                if let Err(e) = file.write_all(text.as_bytes()) {
+                                    println!("Could not write to file: {}",e);
+                                }
+                            },
+                            Err(e) => println!("Could not create file: {}",e),
+                        }
+                    }else{
+                        ctx.submit_command(commands::SHOW_SAVE_PANEL.with(FileDialogOptions::default()));
+                    }
                 }
-                // TODO: add SAVE_FILE command
             },
             _ => (),
         }
