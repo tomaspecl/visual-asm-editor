@@ -201,7 +201,7 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                                     ctx.submit_command(command);
                                     return;
                                 },
-                                Err(e) => println!("Could not read file: {}", e),
+                                Err(e) => println!("{}", e),
                             }
                             
                         },

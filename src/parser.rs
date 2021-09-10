@@ -102,10 +102,9 @@ pub struct ParseError<'a> {
     text: &'a str,
 }
 
-// TODO: write better formating
 impl<'a> Display for ParseError<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"File can not be parsed\n")
+        write!(f,"File can not be parsed: {}\nError occured on line {}:\n{}",self.desc,self.line+1,self.text)
     }
 }
 
