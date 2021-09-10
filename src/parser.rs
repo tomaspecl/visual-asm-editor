@@ -18,16 +18,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use crate::codeblock::CodeBlock;
 
 use std::cell::RefCell;
+use std::error::Error;
+use std::fmt::Display;
 use std::rc::Rc;
 use druid::kurbo::Point;
 
-// TODO: return Result instead of unwraping
-pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
+pub fn parse<'a>(str: &'a str) -> Result<Vec<Rc<RefCell<CodeBlock>>>,ParseError<'a>> {
     let mut code = Vec::new();
 
     code.push(Rc::new(RefCell::new(CodeBlock::default())));
 
-    for line in str.lines() {
+    for (i,line) in str.lines().enumerate() {
         if line.starts_with(";#") {
             //visual asm editor metadata
             //format: ;#parameter1,parameter2,parameter3, ... ,
@@ -35,13 +36,31 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
 
             match parameters[0] {
                 "codeblock" => {    //start of codeblock => push new codeblock on code vector
+                    if parameters.len()<3 {
+                        return Err(ParseError{
+                            desc: "Not enough parameters",
+                            line: i,
+                            text: line,
+                        });
+                    }
+                    assert!(parameters.len()>=3);
+                    let x = parameters[1].parse::<f64>().map_err(|_| return ParseError{
+                        desc: "Not a valid number parameter",
+                        line: i,
+                        text: line,
+                    })?;
+                    let y = parameters[2].parse::<f64>().map_err(|_| return ParseError{
+                        desc: "Not a valid number parameter",
+                        line: i,
+                        text: line,
+                    })?;
                     let new_codeblock = Rc::new(RefCell::new(CodeBlock {
-                        pos: Point { x: parameters[1].parse::<f64>().unwrap(), y: parameters[2].parse::<f64>().unwrap() },
+                        pos: Point { x, y },
                         ..Default::default()
                     }));
 
                     {
-                        let mut prev_codeblock = code.last().unwrap().borrow_mut();
+                        let mut prev_codeblock = code.last().expect("there should be at least one codeblock").borrow_mut();
 
                         if prev_codeblock.text.is_empty() {
                             drop(prev_codeblock);
@@ -55,13 +74,17 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
                 }
                 _ => {
                     //other
-                    todo!();
+                    return Err(ParseError{
+                        desc: "Unknown metadata type",
+                        line: i,
+                        text: line,
+                    });
                 }
             }
 
         }else{
             //normal text => append to last codeblock
-            let mut codeblock = code.last().unwrap().borrow_mut();
+            let mut codeblock = code.last().expect("there should be at least one codeblock").borrow_mut();
             if !codeblock.text.is_empty() {
                 codeblock.text.push('\n');
             }
@@ -69,5 +92,33 @@ pub fn parse(str: &str) -> Vec<Rc<RefCell<CodeBlock>>> {
         }
     }
 
-    code
+    Ok(code)
+}
+
+#[derive(Debug)]
+pub struct ParseError<'a> {
+    desc: &'static str,
+    line: usize,
+    text: &'a str,
+}
+
+// TODO: write better formating
+impl<'a> Display for ParseError<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,"File can not be parsed\n")
+    }
+}
+
+impl<'a> Error for ParseError<'a> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
+
+    fn description(&self) -> &str {
+        "description() is deprecated; use Display"
+    }
+
+    fn cause(&self) -> Option<&dyn Error> {
+        self.source()
+    }
 }

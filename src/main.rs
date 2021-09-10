@@ -129,7 +129,7 @@ fn main() {
     something
     ";
 
-    let mut data = parser::parse(&_text1);
+    let mut data = parser::parse(&_text1).unwrap();
     splitter::split(&mut data);
     linker::link(&data);
 
@@ -189,16 +189,21 @@ impl<W: Widget<MyData>> Controller<MyData, W> for CommandHandler {
                         Ok(text) => {
                             data.current_file = Some(path.to_path_buf());
 
-                            let mut new_data = parser::parse(&text);
-                            splitter::split(&mut new_data);
-                            linker::link(&new_data);
-                            let code = CodeBlocks::new(new_data);
-                            data.code = code;
+                            match parser::parse(&text) {
+                                Ok(mut new_data) => {
+                                    splitter::split(&mut new_data);
+                                    linker::link(&new_data);
+                                    let code = CodeBlocks::new(new_data);
+                                    data.code = code;
 
-                            let selector = druid::Selector::new("reload");
-                            let command = druid::Command::new(selector, (), druid::Target::Global);
-                            ctx.submit_command(command);
-                            return;
+                                    let selector = druid::Selector::new("reload");
+                                    let command = druid::Command::new(selector, (), druid::Target::Global);
+                                    ctx.submit_command(command);
+                                    return;
+                                },
+                                Err(e) => println!("Could not read file: {}", e),
+                            }
+                            
                         },
                         Err(e) => println!("Could not read file: {}", e),
                     }
